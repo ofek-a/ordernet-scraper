@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import lib from "./lib";
-import { log } from "./log";
-import { Account } from "./types";
+import lib from "./spark/lib";
+import { logger } from "./logger";
+import { Account } from "./spark/types";
+
+const log = logger("main");
 
 const broker = "nesua";
 
@@ -28,7 +30,7 @@ async function main() {
 		log("holdings", holdings);
 
 		const transactions = await lib.getTransactions(a);
-		log("transactions", { transactions });
+		// log("transactions", { transactions });
 
 		const balance = await lib.getAccountBalance(a);
 		log("balance", balance);
