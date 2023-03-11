@@ -1,38 +1,37 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
-import lib from "./spark/lib";
-import { logger } from "./logger";
-import { Account } from "./spark/types";
+import { send, editMessage, sendError } from "./notifier";
+import { initializeStorage, saveResults, storages } from "./storage/index";
+import { logger, logToPublicLog } from "./logger";
+import { scrape } from "./scrape";
 
 const log = logger("main");
-
-const broker = "nesua";
 
 main();
 
 async function main() {
-	if (!process.env.USERNAME || !process.env.PASSWORD) throw new Error("no username or password");
+	logToPublicLog("Scraping started");
+	log("Scraping started");
 
-	log(`Login in to https://${broker}.ordernet.co.il with user ${process.env.USERNAME}...`);
-	await lib.authenticate(process.env.USERNAME, process.env.PASSWORD, broker);
+	const message = await send("Starting...");
 
-	let accounts: Account[] = [];
-	log("Getting account keys...");
+	if (!storages.length) {
+		log("No storages found, aborting");
+		await editMessage(message?.message_id, "No storages found, aborting");
+	} else {
+		try {
+			const [results] = await Promise.all([scrape(), initializeStorage()]);
 
-	accounts = await lib.getAccounts();
-	log(`Account keys found (${accounts.length}): ${accounts.map((a) => a.key).join(", ")}`);
+			const saved = await saveResults(results);
+			// const summary = getSummaryMessage(results, saved.stats);
 
-	for (const a of accounts) {
-		log(`Getting balance for account ${a.number} (account key ${a.key})...`);
-
-		const holdings = await lib.getHoldings(a);
-		log("holdings", holdings);
-
-		const transactions = await lib.getTransactions(a);
-		// log("transactions", { transactions });
-
-		const balance = await lib.getAccountBalance(a);
-		log("balance", balance);
+			// await send(summary);
+		} catch (e) {
+			log(e);
+			await sendError(e);
+		}
 	}
+
+	log("Scraping ended");
+	logToPublicLog("Scraping ended");
 }

@@ -67,7 +67,7 @@ async function getHoldings(account: Account) {
 		.then((data) => data.map(convertKeys));
 
 	const holdingsPromises = result.map(async (h) => await new SparkHoldingTransformer(h).getHoldingRow());
-	const holdings = (await Promise.all(holdingsPromises)).filter((h) => h !== null);
+	const holdings = (await Promise.all(holdingsPromises)).filter(notEmpty);
 
 	return holdings;
 }
@@ -185,6 +185,10 @@ class SparkHoldingTransformer {
 
 		return output;
 	}
+}
+
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+	return value !== null && value !== undefined;
 }
 
 export default { config, authenticate, getAccounts, getAccountBalance, accountKeyToNumber, getHoldings, getTransactions };

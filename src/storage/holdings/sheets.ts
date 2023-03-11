@@ -1,7 +1,8 @@
 import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 
-import { logger } from "../../logger.js";
-import { SaveStats } from "../../types.js";
+import { logger } from "../../logger";
+import { AccountData } from "../../scrape";
+import { SaveStats } from "../../types";
 
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
 const worksheetName = process.env.HOLDINGS_WORKSHEET_NAME || "_spark_holdings";
@@ -17,7 +18,7 @@ export type HoldingRow = {
 };
 
 export class HoldingsGoogleSheetsStorage {
-	static FileHeaders = ["ticker", "quantity", "cost per share"];
+	static FileHeaders = ["Ticker", "Category", "Quantity", "Cost Per Share", "Currency"];
 
 	private initPromise: null | Promise<void> = null;
 
@@ -39,7 +40,8 @@ export class HoldingsGoogleSheetsStorage {
 		return Boolean(GOOGLE_SERVICE_ACCOUNT_EMAIL && GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY);
 	}
 
-	async save(holdings: Array<HoldingRow>) {
+	async save(accountData: AccountData) {
+		const holdings = accountData.holdings;
 		const rows: string[][] = [];
 		await this.init();
 
@@ -99,7 +101,7 @@ export class HoldingsGoogleSheetsStorage {
 		this.sheet = doc.sheetsByTitle[worksheetName];
 	}
 
-	private holdingRow(h: HoldingRow): Array<string> {
-		return [h.ticker, String(h.quantity), String(h.cost_per_share)];
+	private holdingRow(h: HoldingRow): string[] {
+		return [h.ticker, h.category, String(h.quantity), String(h.cost_per_share), h.currency];
 	}
 }

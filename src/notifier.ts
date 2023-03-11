@@ -1,6 +1,6 @@
 import { Telegraf } from "telegraf";
 import { Message } from "telegraf/typings/core/types/typegram";
-import { daysBackToScrape, scrapeStartDate, TELEGRAM_API_KEY, TELEGRAM_CHAT_ID, worksheetName } from "./config";
+import { TELEGRAM_API_KEY, TELEGRAM_CHAT_ID } from "./config";
 // import type { AccountScrapeResult, SaveStats } from "./types.js";
 import { logger, logToPublicLog } from "./logger";
 import { SaveStats } from "./types.js";
@@ -30,29 +30,27 @@ export function sendError(message: any, caller: string = "") {
 	return send(`${caller}\n❌ ${String(message instanceof Error ? `${message.message}\n${message.stack}` : message)}`.trim());
 }
 
-export function getSummaryMessage(results: Array<AccountScrapeResult>, stats: Array<SaveStats>) {
-	const accountsSummary = results.flatMap(({ result, companyId }) => {
-		if (!result.success) {
-			return `\t❌ [${companyId}] ${result.errorType}${result.errorMessage ? `\n\t${result.errorMessage}` : ""}`;
-		}
-		return result.accounts?.map((account) => `\t✔️ [${companyId}] ${account.accountNumber}: ${account.txns.length}`);
-	});
+// export function getSummaryMessage(results: Array<AccountScrapeResult>, stats: Array<SaveStats>) {
+// 	const accountsSummary = results.flatMap(({ result, companyId }) => {
+// 		if (!result.success) {
+// 			return `\t❌ [${companyId}] ${result.errorType}${result.errorMessage ? `\n\t${result.errorMessage}` : ""}`;
+// 		}
+// 		return result.accounts?.map((account) => `\t✔️ [${companyId}] ${account.accountNumber}: ${account.txns.length}`);
+// 	});
 
-	const saveSummary = stats.map((s) => statsString(s));
+// 	const saveSummary = stats.map((s) => statsString(s));
 
-	return `
-Accounts updated:
-${accountsSummary.join("\n") || "\t😶 None"}
-Saved to:
-${saveSummary.join("\n") || "\t😶 None"}
-`.trim();
-}
+// 	return `
+// Accounts updated:
+// ${accountsSummary.join("\n") || "\t😶 None"}
+// Saved to:
+// ${saveSummary.join("\n") || "\t😶 None"}
+// `.trim();
+// }
 
 export function getConfigSummary() {
 	return `
 Config:
-  Worksheet name: ${worksheetName}
-  Start Date: ${scrapeStartDate.toISOString()} (${daysBackToScrape} days back)
   TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
   `;
 }
