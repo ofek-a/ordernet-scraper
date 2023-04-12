@@ -67,6 +67,8 @@ export class HoldingsGoogleSheetsStorage {
 
 		if (rows.length) {
 			stats.added = rows.length;
+			await this.sheet?.clear();
+			await this.sheet?.setHeaderRow(HoldingsGoogleSheetsStorage.FileHeaders);
 			await this.sheet?.addRows(rows);
 		}
 

@@ -154,7 +154,8 @@ class SparkHoldingTransformer {
 	}
 
 	private getCostPerShare(quantity: number) {
-		if (this.holding.SugBno === "StockShekel") return this.holding.COST / quantity;
+		if (this.holding.SugBno === "MatachMezuman") return 1;
+		if (this.holding.SugBno === "StockShekel") return (this.holding.COST / quantity) * 100;
 
 		return this.holding.SUM1 / quantity;
 	}
@@ -171,7 +172,7 @@ class SparkHoldingTransformer {
 
 	private async getCurrency(ticker: string) {
 		if (this.holding.SugBno === "MatachMezuman") return ticker;
-		if (this.holding.SugBno === "StockShekel") return "ILS";
+		if (this.holding.SugBno === "StockShekel") return "ILA";
 
 		const yahoo = await yahooFinance.quote(ticker);
 
