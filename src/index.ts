@@ -11,7 +11,6 @@ main();
 
 async function main() {
 	logToPublicLog("Scraping started");
-	log("Scraping started");
 
 	const message = await send("Starting...");
 
@@ -32,6 +31,5 @@ async function main() {
 		}
 	}
 
-	log("Scraping ended");
 	logToPublicLog("Scraping ended");
 }
